@@ -1,0 +1,598 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Graph Coloring Programs Manual</title>
+</head>
+ <body>
+ 
+<h1> <a href="http://web.cs.ualberta.ca/%7Ejoe/Coloring/index.html"><img src="http://web.cs.ualberta.ca/%7Ejoe/Coloring/tinygrph.gif">
+</a>
+ 
+<center> Graph Coloring Programs Manual </center>
+</h1>
+  Joseph Culberson<br>
+ Department of Computing Science<br>
+ University of Alberta<br>
+ Edmonton, Alberta, Canada<br>
+ T6G 2H1  
+<p>  This page is still being updated. FOR INFORMATION CONTACT <a href="mailto:joe@cs.ualberta.ca">
+joe@cs.ualberta.ca</a>
+<br>
+ Information is currently unstable.    </p>
+<h2>Table of Contents</h2>
+ 
+<ul>
+ <li><a href="#introduction">Introduction and Overview</a>
+ </li>
+  <li><a href="#srcnote">A Note on the Source Code Structure</a>
+ </li>
+  <li><a href="#greedy">Greedy</a>
+ </li>
+  <li><a href="#dsatur">DSATUR</a>
+ </li>
+  <li><a href="#maxis">MAXIS</a>
+ </li>
+  <li><a href="#bkdsatur">Backtrack DSATUR</a>
+ </li>
+  <li><a href="#itrgrdy">Iterated Greedy</a>
+ </li>
+  <li><a href="#tabu">TABU</a>
+ </li>
+  <li><a href="#future">Future Changes</a>
+ </li>
+  <li><a href="#references">References</a>
+ </li>
+  <li><a href="#conditions">Conditions of Use</a>
+ </li>
+</ul>
+   <a name="introduction">
+<h2>Introduction and Overview</h2>
+</a>
+ This suite of programs may be used to generate vertex colorings of a graph. 
+They are made available on an ``as is'' basis for use by researchers and
+ educators.  Please read the <a href="#conditions"> conditions of use</a>
+.  
+<p> Descriptions of these algorithms and some experimental results can be
+found in References <a href="#references"> [1,2,3]</a>
+ below. (Available on-line). <b>It is assumed throughout this document that
+the reader is familiar with  these papers.</b> </p>
+<p> Each of the programs is initiated by </p>
+<pre>     program filename<br></pre>
+ The file <strong>filename</strong> should contain the graph description in
+either the DIMACS standard ASCII format or DIMACS standard binary format. 
+Descriptions of these and translators to/from binary formats can be found
+in Michael Trick's <a href="http://mat.gsia.cmu.edu/COLOR/instances.html">
+ Graph Coloring Instances </a>
+. 
+<p> The graphs may also include a hidden coloring description, called the
+<em>cheat</em> as output by the K-Colorable <a href="http://web.cs.ualberta.ca/%7Ejoe/Coloring/Generators/generate.html">
+ Graph Generator</a>
+. Currently, only the <em>Iterated Greedy</em>(IG) program uses the cheat. 
+If the user chooses to use the cheat in IG, then a <em>proximity measure</em>
+ is output at regular intervals to indicate how close the coloring is to
+the hidden one. Reference <a href="#references">[3]</a>
+ provides some analysis based on the proximity measure. For further references
+on on this measure, search the <a href="http://web.cs.ualberta.ca/%7Ejoe/Coloring/Bibliography/bibsearch.html">
+ Coloring Bibliography</a>
+ for the term <strong>proximity</strong>.  </p>
+<p> The final coloring obtained by the program is appended to the file <strong>
+filename.res</strong>. For some programs, e.g. <em>Iterated Greedy</em> and
+<em>TABU</em>, this result file is also used to select initial colorings. 
+ </p>
+<p> The final coloring is also <em>verified</em> before writing, with a statement
+of verification printed to standard output. Given the complexity of some
+of the coloring routines, it is a good idea to check this output, in case
+some error should occur. <em>Iterated Greedy</em> and <em>TABU</em> also
+verify the input colorings that are selected before starting the coloring
+process.  </p>
+<p> Each program requires a number of parameters in addition to the graph 
+description. These parameters are prompted for interactively  through standard
+input and output. Every program first prompts whether or not the user wants
+the cheat to be used. </p>
+<pre>Do you wish to use the cheat if present? (0-no, 1-yes) <br></pre>
+ Only the Iterated Greedy uses it at this time. The next prompt requests
+a seed for the random generator. 
+<pre>Enter seed for search randomization:<br></pre>
+  
+<p> Further descriptions of each program are provided below. The programs
+currently available are </p>
+<ol>
+ <li><a href="#greedy">Greedy</a>
+ </li>
+  <li><a href="#dsatur">DSATUR</a>
+ </li>
+  <li><a href="#maxis">MAXIS</a>
+ </li>
+  <li><a href="#bkdsatur">Backtrack DSATUR</a>
+ </li>
+  <li><a href="#itrgrdy">Iterated Greedy</a>
+ </li>
+  <li><a href="#tabu">TABU</a>
+ </li>
+</ol>
+  <a name="srcnote">
+<h2>A Note on the Source Code Structure</h2>
+</a>
+ The source code for this program has evolved over a period of about 6 years. 
+It was originally designed to accomodate a genetic algorithm, then that was
+abandoned, other routines were added, modifications were added, extensions
+added then some were deleted, many variations on input controls were tested,
+new versions of genetic algorithms were tried, and then for this distribution
+what was one large program was split into separate pieces. Partly this was
+done to make it easier for the author to use the system as well. Not all
+of the algorithms (including the latest GA) are included. 
+<p> As a result, the code shows its history.  Careful examination will  reveal
+to the reader sections of code that are not used (blocked out by #ifdef's), 
+capabilities in current code that are not available in this implementation,
+data structures that are not the most efficient match to their current use,
+and parameters to routines that are locked down by constant declarations
+in mid-stream. </p>
+<p> In short, the code has a lot of historical legacy.  Well, it is part
+of on-going research into what works and what does not. This publication
+of the code is on an as-is basis, and if you wish to modify it or adapt portions
+for use elsewhere, you are strictly on your own.  </p>
+<p> <strong> PLEASE READ THE <a href="#conditions"> CONDITIONS OF USE</a>
+. </strong>  </p>
+<p> If your system supports ``make'', first edit the <strong>makefile</strong>
+ and change the BINPATH variable to indicate where you wish the output to
+go. Then typing  </p>
+<pre>    make all<br></pre>
+ should create each of the following programs. Reading the <strong>makefile</strong>
+ should provide insight as to what  pieces of code are required by each routine. 
+ <a name="greedy">
+<h2>1. Greedy</h2>
+</a>
+ Synopsis: 
+<pre>	greedy file<br></pre>
+  The <strong>greedy</strong> algorithm, also known as the <strong>sequential</strong>
+ algorithm, has several variations. For further references, search the  <a href="http://web.cs.ualberta.ca/%7Ejoe/Coloring/Bibliography/bibsearch.html">
+ Coloring Bibliography</a>
+ for the term <strong>sequential | greedy</strong>. (The "|" means "OR" to
+the search engine). Another term to try is <strong>kempe</strong>. 
+<p> The greedy algorithm takes each vertex in turn in some predefined order 
+and tries to color the vertex with one of the colors used so far. In other
+words, it tries to add the vertex to one of the existing color classes. If
+it is not possible to color it with any existing color, then a new color class
+is created and the vertex is assigned the color of that class. </p>
+<p> This leaves two apparent choices:  </p>
+<ul>
+ <li><b>first</b> when there is more than one existing color class the vertex
+can enter, which one should be chosen; </li>
+  <li> <b>second</b> what preordering to assign to the vertices. </li>
+</ul>
+  
+<p> In addition to the cheat and random seed, <strong>greedy</strong> issues
+the following prompts.  </p>
+<pre>GREEDY TYPE SELECTION<br>        1       Simple Greedy<br>        2       Largest First Greedy<br>        3       Smallest First Greedy<br>        4       Random Sequence Greedy<br>        5       Reverse Order Greedy<br>        6       Stir Color Greedy<br>Which for this program <br></pre>
+ This indicates how the program is to make the choice of which color class
+to use for the vertex. Each, except for ``Stir Color Greedy''  selects the
+first class encountered in the indicated search order. <br>
+ 
+<p> ``Simple Greedy'' visits the classes in order 1..k, and is the technique 
+usually indicated when someone refers to the <strong>sequential</strong> algorithm.
+ <br>
+ ``Largest First Greedy'' ranks the classes by number of vertices currently
+in them, and searches by descending size.  This should tend to build larger
+independent sets. <br>
+ ``Smallest First Greedy'' ranks the classes by number of vertices currently
+in them, and searches by ascending size.  This should tend to equalize the
+size of the color classes. <br>
+ ``Random Sequence Greedy'' searches the sets in a random order. <br>
+ ``Reverse Order Greedy'' searches the sets in the order k..1. <br>
+ ``Stir Color Greedy'' what the heck does it do? Ahh - read the code, it
+does not seem to perform very well anyway.  <br>
+</p>
+<p> The next prompt is for the ordering of the vertices.  </p>
+<pre>Initial Vertex Ordering:<br>        1 -- inorder<br>        2 -- random<br>        3 -- decreasing degree<br>        4 -- increasing degree<br>Using: <br></pre>
+ Inorder presents the vertices in the order 1..n, the other three should
+be obvious. The inorder may possibly be useful if you think the construction
+of your graph could be providing hints to its coloring. 
+<p> The last requirement is whether or not to use a Kempe reduction after 
+greedy has completed. </p>
+<pre>Use Kempe reductions y/n <br></pre>
+ Kempe chain reductions are basically done as follows, assuming k colors
+have been used and that S[i] refers to the vertices of the <em>i</em>th color
+class: 
+<pre>For 1 &lt;= i &lt; k, <br>   For i &lt; j &lt;= k do<br>      Compute the induced connected components <br>      of the induced subgraph G[S[i]+S[j]].<br>      Swap the vertices of any component that<br>      has more vertices in S[j] than in S[i].<br></pre>
+ See the Reference <a href="#references"> [4] </a>
+ for further information.   <a name="dsatur">
+<h2>2. DSATUR</h2>
+</a>
+ Synopsis: 
+<pre>	dsatur file<br></pre>
+ This program is based on the paper by Daniel Brelaz <a href="#references">
+[6]</a>
+. It is like the sequential algorithm, except that the order in which vertices 
+are chosen is determined dynamically based on the number of colors that cannot
+be used because of conflicts with previously colored vertices. Vertices with
+the fewest available colors are colored first. 
+<p> For further references, search the <a href="http://web.cs.ualberta.ca/%7Ejoe/Coloring/Bibliography/bibsearch.html">
+ Coloring Bibliography</a>
+ for the term <strong>dsatur</strong>. </p>
+<p> In addition to the cheat and random seed, <strong>dsatur</strong> requires
+only one input: </p>
+<pre>DSATUR COLORING<br>Initial Vertex Ordering:<br>        1 -- inorder<br>        2 -- random<br>        3 -- decreasing degree<br>        4 -- increasing degree<br>Using: <br></pre>
+ This is the secondary selection order used when two or more vertices have 
+the same saturation.  <a name="maxis">
+<h2>3. MAXIS</h2>
+</a>
+ Synopsis: 
+<pre>	maxis file<br></pre>
+ Initially, this program was based on the paper by Bollobas and Thomason
+<a href="#references">[6]</a>
+ It has evolved somewhat over time. Further descriptions can be found in
+the references <a href="#references">[1,2,3,]</a>
+. It is also similar to the extremely greedy algorithm  of Manvel<a href="#references">
+[7]</a>
+ and the XRLF algorithm of Johnson <em>et al</em><a href="#references">[4]</a>
+ 
+<p> MAXIS is based on an exponential backtrack algorithm for finding  a large
+maximal independent set. (If given unbounded time, it will find a maximum
+set, but for large graphs the user will likely expire first.) These sets
+are the color classes. For random graphs in G(n,p) with p=1/2 it is one of
+the better algorithms.  However, for sparser graphs it is less effective,
+because the  independent sets are larger, meaning the backtrack tree is of
+greater depth and of larger branching factor. See <a href="#references">[2]</a>
+. </p>
+<p> In addition to the cheat and random seed, <strong>maxis</strong> issues
+the following prompts. </p>
+<p> The backtrack (depth first) search operates by adding vertices one at
+a time to an independent set. At each addition, several choices may be available 
+as possibilities, and these are the backtrack choices. Since it is impractical
+to do a complete search for a maximum independent set, search tree pruning
+is  accomplished through the following mechanism.  </p>
+<pre>Vertex Num, Cutlim in decreasing order to 0<br></pre>
+ In response, supposing a graph of 1000 vertices, the user might input 
+<pre>200 2<br>100 3<br>50 4<br>0 2<br></pre>
+ This means that if the current set of available vertices has 200 or more 
+vertices in it, then limit the choices to the first two (a branching factor
+of two). If there are less than 200 but more than 100, then allow up to 3
+alternate searches (branching factor of 3), if less than 100 but more than
+50 allow 4, and if less than 50 only allow two.  
+<p> On a graph of 300 vertices the single response  </p>
+<pre>0 3<br></pre>
+  may produce a reasonable result fairly quickly.   
+<p> </p>
+<pre>Backtrack limit = 0 means no limit to backtrack<br>Backtrack limit = k means do not backtrack over first k<br>Upsort limit(U) and Midsort limit(M) with |G| =N<br>        if NumRem &gt; (U*N)/100 then sort by decreasing degree<br>        else if NumRem &gt; (M*N)/100 then sort by medium degree<br>        else sort by increasing degree<br>Enter Backtrack Limit, UpSort Limit, Midsort Limit<br></pre>
+ A second pruning occurs with the <em>Backtrack Limit</em>. Suppose that
+we have one of the selections for pruning above. Intuitively, since it has
+to have <em>some</em> color,  there is no reason to second guess the choice
+of the first vertex of a set.  If we set Backtrack limit to 1, then the branching
+factor at depth one of the search will be one.  However, intuition has not
+been strongly supported by experiments. 
+<p> Since we are pruning, and thus doing an incomplete search, heuristics
+as to which  branch to choose first will be important for good performance. 
+This is controlled in this program through the UpSort and MidSort limits. 
+Suppose there are 300 vertices in the current subgraph of a 1000 vertex graph
+when the first vertex of the next independent set is to be chosen. Suppose
+also that U=75 and M=50 have been entered. </p>
+<p> Then, while there are at least 75*300/100 = 225 vertices left as possibilities 
+for the next selection, the selection will be by decreasing degree. And when
+there are between 150 and 225 possibilities, then selection will be by a
+sorting that places midrange degree vertices first. When there are fewer
+than 150 vertices, then selection will be in order of smallest degree first. 
+</p>
+<p> See references <a href="#references">[1,2,6]</a>
+ for a discussion of why such choices are important in random graphs.  It
+is less clear which choices might be best for other classes of graphs.   <a name="bkdsatur">
+<h2>4. Backtrack DSATUR</h2>
+</a>
+ Synopsis: </p>
+<pre>	bktdsat file<br></pre>
+  This program is based on a backtrack version of <a href="#dsatur">DSATUR</a>
+ with dynamic re-ordering of vertices during backtrack as in Korman's algorithm
+<a href="#references">[8]</a>
+, but with an attempt at additional heuristic guidance as well, using an
+idea similar to the <em>prohibition</em> of Campers <em>et al</em> <a href="#references">
+[9]</a>
+. (What was the final state of this program?) If the branching factor is
+set very large, and no backtrack region is excluded (see below) then this 
+algorithm should guarantee an optimal (chromatic number) coloring for small 
+graphs. 
+<p> In practice the time required to do a backtrack search with this algorithm 
+does not produce comparable increases  in quality of solution as is obtained
+with similar effort by <a href="#maxis">MAXIS</a>
+ or <a href="#itrgrdy">Iterated Greedy</a>
+ for most classes of graphs. An exception, noted in <a href="#references">
+[3]</a>
+ occurs on geometric graphs.  </p>
+<p>  In addition to the cheat and random seed, <strong>greedy</strong> issues
+the following prompts. </p>
+<pre> BACKTRACK DSATUR COLORING<br>Target Color - terminates if achieved: <br></pre>
+ If you are searching a <em>k</em>-colorable graph, then this allows termination
+if such a coloring is found. Otherwise, enter one to allow a complete search. 
+ 
+<pre>Maximum branching factor: <br></pre>
+ Entering a branching factor of <tt>0</tt> causes the algorithm to behave
+like DSATUR, essentially performing a sequential search.  For larger values,
+<tt>L</tt> when the program backtracks to some point  and takes an alternate
+branch, the branching factor is reduced by one for the entire subtree. If
+the branch factor at the root of a subtree is <tt>0</tt> then no further
+branching is allowed in the subtree.   
+<pre>Block off which area<br>  ('x y' means no branching in depth range x to y): <br></pre>
+ While working with this program, Papp noticed that for many graphs the only 
+improvements that were likely to occur in wider searches occurred  as a result
+of alternatives either near the root or near the leaves of the search tree.
+Entering a pair of numbers such as <tt>30 280</tt> on a graph of 300 vertices
+means that no branching will occur at depths in that range.   
+<pre>At each iteration choose vertex of minimum (0) or maximum (1) saturation? <br><br>Find maxclique? (0-no,1-yes) <br><br>Sort vertices by decreasing (0) or increasing (1) degree first?<br><br></pre>
+ These prompts allow setting the selection and ordering of vertices. On some
+graphs Papp found that using a minimum saturation worked as well as a maximum
+(possibly when followed by iterated greedy). 
+<p> If the <tt>maximal clique</tt> option is selected, then a subroutine
+to find a maximal clique is called. This is similar to the MAXIS program
+for finding a maximal independent set, with the obvious flip of meaning for
+edges versus non-edges. Once a first clique is found remaining vertices are
+sorted by  degree as requested. If no clique is requested, then all vertices
+are sorted.  </p>
+<pre>Vertex Num, Cutlim in decreasing order to 0<br><br>Backtrack limit = 0 means no limit to backtrack<br>Backtrack limit = k means do not backtrack over first k<br>Upsort limit(U) and Midsort limit(M) with |G| =N<br>        if NumRem &gt; (U*N)/100 then sort by decreasing degree<br>        else if NumRem &gt; (U*M)/100 then sort by medium degree<br>        else sort by increasing degree<br>Enter Backtrack Limit, UpSort Limit, Midsort Limit0<br></pre>
+ These options are for the clique finding routine if requested, and are the
+same as described in the <a href="#maxis">MAXIS</a>
+ section.   <a name="itrgrdy">
+<h2>5. Iterated Greedy</h2>
+</a>
+ Synopsis: 
+<pre>	itrgrdy file<br></pre>
+ This program is is able to take a previous coloring from  <strong>file.res</strong>
+ and then try to improve on it by an iterated local improvement search. If
+no coloring is available, then the program uses a trivial n-coloring to start. 
+The program generates many colorings, and outputs the best coloring it finds. 
+<p>  The method this program uses is to repeatedly call the  <a href="#greedy">
+Greedy</a>
+ program to find a new coloring. The key idea that makes this worthwhile
+doing is that for each call, the ordering of the vertices is determined  by
+the previous coloring. This is done in such a way that  it is guaranteed
+that each call will produce a new coloring using no more colors than the
+previous coloring. Several ways of reordering the vertices are available that
+satisfy this criterion.  </p>
+<p> This program requires quite a few control parameters.  </p>
+<p>  This is the only program (at the time of writing) that uses the cheat
+to compute proximity measures. If the use of the cheat is selected, and a
+hidden coloring is included in the graph, then this coloring is read into
+the program and used to compute the proximity measure with respect to the
+current coloring  at regular intervals throughout the search.   </p>
+<p> After the cheat is selected the user is asked for a number to seed the
+random number generator. Then the following prompts are given: </p>
+<pre>Enter target color<br></pre>
+ If a coloring is obtained using this or fewer colors, then the program terminates. 
+<pre>GREEDY TYPE SELECTION<br>        1       Simple Greedy<br>        2       Largest First Greedy<br>        3       Smallest First Greedy<br>        4       Random Sequence Greedy<br>        5       Reverse Order Greedy<br>        6       Stir Color Greedy<br>For each greedy type, enter its weight for selection:<br></pre>
+ These types are the same as described in the <a href="#greedy">Greedy</a>
+ section. However, since  the program makes many calls to greedy, it  is
+possible to vary which type is used on different calls. 
+<pre>Enter weight for 1 100<br>Enter weight for 2 100<br>Enter weight for 3 0<br>Enter weight for 4 50<br>Enter weight for 5 0<br>Enter weight for 6 0<br></pre>
+ The selection of greedy type is probabilistic, and the inputs in the above
+example would select the simple type  and  the largest first type with probability 
+100/250 each,  and would select random with probability 50/250. 
+<pre>Enter the frequency for Kempe reductions: <br></pre>
+ Kempe reductions are computationally expensive if done on every greedy call, 
+and also tend to cause IG to hover around a local minima if used too frequently.
+ Entering a number 30 means that the reductions will be done on every 30th 
+call. A number in the range 20-50 seems most effective, although larger values
+may be appropriate for larger graphs. 
+<pre>Enter number of iterations before quitting (after last improvement)<br></pre>
+ IG is a local search that can run for an arbitrarily long time. Entering
+a value of 1000 here means that 1000 calls to greedy will be made after the
+last improvement detected.  The value of a coloring for this  purpose is
+called the <strong>color sum</strong> and is  computed as n*k + sum c[v],
+where n =|V| is the number of vertices, k is the current coloring number,
+and c[v] is the color of vertex v, with the sum taken over all vertices in
+|V|.  A discussion of this measure is presented in <a href="#references">
+[2]</a>
+. Note that although k never increases as IG runs, the coloring sum may increase. 
+<p> Suppose that on the 457th call to greedy a coloring sum was found less
+than any so far. The program would continue until at least 1457 calls to
+greedy  were made. If a new minimum sum were found on 1329, then the program 
+would continue on until at least 2329 calls were made. See section <a href="#future">
+Future Changes</a>
+ for a much needed improvement. </p>
+<p> The next set of prompts is concerned with the reordering of vertices between
+calls to greedy. The reader is referred to <a href="#references">[1,2]</a>
+ for a discussion of these reorderings and their properties. </p>
+<pre>REORDER CONTROL INFORMATION<br>Heuristic Controls<br>        1       reverse order (else in order)<br>        2       shuffle<br>        4       largest first<br>        8       smallest first<br>        16      increasing total degree<br>        32      decreasing total degree<br>Sum any subset, sorts [size[degree[shuffle,reverse,order]]]<br><br>Frequency, control - terminate by 0 0<br>100 1<br>100 2<br>50 5<br>0 0<br></pre>
+ The inputs in the last five lines above means that with probability 100/250 
+the vertices will be sorted so that color classes are in reverse order, with
+probability 100/250 the color classes will be randomly shuffled, and with
+probability 50/250 the classes will be sorted by decreasing size, with ties
+broken by reverse order.   
+<pre>[ 1] CLRS 32 FROM DSATUR<br><br>[ 2] CLRS 17 FROM ITERATED GREEDY<br><br>[ 3] CLRS 23 FROM TABU<br><br>[ 4] CLRS 17 FROM ITERATED GREEDY<br></pre>
+  The program looks for a file called <strong>file.res</strong>. If found
+then the file is scanned and a list of previously obtained colorings is presented.
+The user selects the coloring to start the iterated greedy process with. 
+<p> If the file <strong>file.res</strong> does not exist, or is empty, then
+the program starts with a trivial coloring, coloring the vertices with colors
+<em>1..n</em>. </p>
+<p> As the program runs, it outputs progress reports. When a reduction in
+the color sum occurs, a line beginning ``It='' is printed, with the iteration
+number, the current number of colors being uses, and the color sum. When
+a reduction in the number of colors used occurs, a line beginning ``COLOR''
+is printed with number of colors, iteration number and the CPU time since
+the program started. Every 100 iterations, a line starting ``ITR'' is printed
+with the iteration number, number of colors and color sum. </p>
+<p> In addition, if the cheat is present and requested by the user then proximity
+information is printed each time the number of colors is reduced and on every
+1000 iterations, as well as at the beginning and end of the run. Typical
+lines look like </p>
+<pre>P=  761:  0   0   5  12  15  21 191 232 177  20   5  16  20  23  24<br><br>P= 3121: 28  15 120 231 210 300 300 300 276 276 120 231 210 153 351<br></pre>
+ These were output during a trial run on a 300 vertex graph with a hidden 
+15 coloring in which the color classes varied in size. The first line was
+output when a 31-coloring was obtained by the program, and the second was
+output when a 15 coloring was found. 
+<p> In this instance, there are 15 values printed following the ``:'', one 
+for each of the hidden color classes. The number preceding the ``:'' is the
+sum of these numbers. Each of the trailing numbers represents the number
+of pairs of vertices from the color class that received the same color in
+the programs current coloring.  For example, if hidden color class 3 had
+vertices <tt>&lt;a,b,c,d,e,f&gt;</tt> and the program assigned color 5 to
+<tt>&lt;a,b,e&gt;</tt>, color 9 to <tt>&lt;c,f&gt;</tt> and color 2 to <tt>
+&lt;d&gt;</tt>, then the proximity value for hidden class 3 would be 4. </p>
+<p> In the above output, first line, classes 1 and 2  each have value 0,
+indicating that for each of these classes, no two vertices received the same
+color in the 31 coloring obtained by the program. </p>
+<p> See reference <a href="#references">[3]</a>
+ for an example of how this information can be used to study the coloring
+program behavior.  <a name="tabu">
+<h2>6. TABU</h2>
+</a>
+ Synopsis: </p>
+<pre>	tabu file<br></pre>
+  TABU is another local improvement search. It is based on partitioning the
+vertices of a graph into color classes that may not represent a legal coloring,
+then attempting to reduce the number of coloring violations, or <em>conflicts</em>
+, by moving vertices from one class to another. This program is based on
+the description in <a href="#references">[10]</a>
+, but see <a href="#references">[1,2]</a>
+ for a description of differences from that paper. 
+<p>  Some of the differences will be apparent from the requested inputs  listed
+below. In addition to the cheat and random seed, <strong>tabu</strong> issues
+the following prompts.  </p>
+<pre>TABU CONTROL INFORMATION<br>Maximum Iterations for tabu: 1000<br>Enter number of neighbors 100<br>Enter minimum number of neighbors 2<br>Enter tabu list size 7<br></pre>
+ Each iteration of TABU consists of generating a sample of neighbors; that
+is, partitions that can be obtained from the current one by moving one vertex
+to a different class. It then selects the neighbor partition that has the
+fewest conflicts, even if the neighbor has more conflicts than the current
+partition. The set of neighbors is restricted by a TABU list that prevents
+a  vertex from moving back into a class that it was recently a member of
+in a previous iteration. This helps the program struggle out of local minima. 
+<p> The first input, 1000 in the above example,  limits the number of  iterations
+before quitting after the last improvement was detected. That is, if on iteration
+247 a new (non-zero) global minimum in conflicts was obtained, then the program
+would continue  to at least 1247 iterations before quitting. It will continue
+until either there is a sequence of 1000 iterations without improvement, or
+the number of conflicts is reduced to 0, indicating that a legal coloring 
+has been obtained.  </p>
+<p> The second indicates that a maximum of 100 neighbors will be generated. 
+TABU immediately stops generating neighbors if one of value lower than the 
+current partition is found. However, the third input above indicates that 
+this quick change will be limited in that before making the switch, TABU
+must examine at least two neighbors of lower value, picking the better of
+the two before switching to a new partition.  Finally, in this example a
+vertex will not be allowed to move back into  a partition from which it was
+previously removed for at least 7 iterations.  </p>
+<pre>Enter the target color you  want to try for: 15<br>If target not achieved, how many increases allowed: 2<br></pre>
+ The first input tells TABU how many classes to use in the partition of the
+vertex set.  The second asks how many times the program should increase the
+number of classes before giving up. For example, for the values above TABU
+will first try to find a 15 coloring, if that fails then it will  increase
+the partitioning to 16 classes by adding an empty class, and try for a 16
+coloring. If that fails, then it will add another empty class and try for
+a 17 coloring. If that fails, it will take the current partitioning as an
+ordering heuristic, apply the simple greedy algorithm and output that as
+its coloring.  
+<pre>[ 1] CLRS 32 FROM DSATUR<br><br>[ 2] CLRS 17 FROM ITERATED GREEDY<br><br>[ 3] CLRS 23 FROM TABU<br><br>[ 4] CLRS 17 FROM ITERATED GREEDY<br><br>There are 4 colorings. Which do you want? 2<br><br></pre>
+ TABU will seed the partition it starts with by using the  largest color
+sets from the indicated coloring as color classes, and then taking the remaining
+vertices and placing them one by one into the class in which they cause the
+fewest conflicts. For the example inputs, the vertices from the two smallest
+classes of the second coloring will be inserted into the largest 15 color
+classes. The hope is that this will give TABU a better start than a random
+partition. Note however that there is no guarantee that TABU will even find
+a coloring as good as the initial coloring.    <a name="future">
+<h2>Future Changes</h2>
+</a>
+ Notice that for iterated greedy, the user has less than complete control
+over quitting time. One nice feature would be an interrupt handler that would
+allow the user to send a signal to IG, cause it to terminate its search,
+and output the best coloring found so far. The same is true for TABU.  
+<p> The proximity measure should be expanded to allow the values to be computed
+as a cross between any two input sets of colorings, not just the cheat, as
+a <em>post mortem</em> method of analysis. This would be even more useful
+if the cheat were printed separately from the graph, and a further useful
+feature of the generator program for evacuation graphs would be to output
+the deceptive colorings as well as the hidden one, especially for graphs
+with the hidden and deceptive colorings all having the same parameters.   
+<a name="references">
+<h2>References</h2>
+</a>
+ </p>
+<ol>
+ <li> Culberson and Luo <a href="http://web.cs.ualberta.ca/%7Ejoe/Abstracts/colorabs.html">
+ </a>
+    <a href="http://dimacs.rutgers.edu/Volumes/index.html"> DIMACS Series</a>
+, <a href="http://dimacs.rutgers.edu/Volumes/Vol26.html">Volume 26</a>
+, "Cliques, Coloring and Satisfiability" Editors: David S. Johnson and Michael
+A. Trick, 245-284, 1996.   
+    <p> </p>
+  </li>
+  <li> Culberson ``Iterated Greedy Graph Coloring and the Difficulty Landscape
+'' <a href="http://web.cs.ualberta.ca/%7Ejoe/Abstracts/TR92-07.html"> Technical
+Report TR92-07 </a>
+  
+    <p> </p>
+  </li>
+  <li> Culberson, Beacham and Papp <a href="http://web.cs.ualberta.ca/%7Ejoe/Abstracts/ssrhp.html">
+ Hiding our colors</a>
+ in CP'95 Workshop, Studying and Solving Really Hard Problems, Cassis, France,
+pages 31--42, September 1995.  
+    <p> </p>
+  </li>
+  <li> Johnson, Aragon, McGeoch and Schevon ``Optimization by Simulated Annealing:
+An Experimental Evaluation; Part {II}, Graph Coloring and Number Partitioning'' 
+in Operations Research vol. 39, 378-406, 1991.  
+    <p> </p>
+  </li>
+  <li>Korman ``The Graph-Colouring Problem'' in Combinatorial Optimization,
+Christofides, Mingozzi, Toth and Sandi Editors, 211--235, 1979.  
+    <p> </p>
+  </li>
+  <li> Daniel Brelaz ``New Methods to Color the Vertices of a Graph'' in
+CACM(22), 251-256, 1979.    
+    <p> </p>
+  </li>
+  <li> Bollobas and Thomason ``Random Graphs of Small Order'' in Random Graphs
+'83, 47-97, 1985.  
+    <p> </p>
+  </li>
+  <li> Bennet Manvel ``Extremely Greedy Coloring Algorithms'' in Graphs and
+Applications (Proceedings of the First Colorado Symposium on Graph Theory,
+1982),  Frank Harary and John S. Maybee (Eds.) 257-270, 1985.  
+    <p> </p>
+  </li>
+  <li> G. Campers and O. Henkes and J. P. Leclerq ``Graph Coloring Heuristics:
+A Survey, Some New Propositions and Computational Experiences on Random and
+`{L}eighton's' Graphs'' in Operational Research '87 (Buenos Aires, 1987)
+917-932, 1988.  
+    <p> </p>
+  </li>
+  <li> A. Hertz and D. de Werra ``Using Tabu Search Techniques for Graph
+Coloring'' in Computing(39) 345-351, 1987. </li>
+</ol>
+  <a name="conditions">
+<h2>Conditions of Use</h2>
+</a>
+  Copyright (c) 1997 by <a href="http://web.cs.ualberta.ca/%7Ejoe/">Joseph
+Culberson</a>
+. All rights reserved. 
+<p> Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met: </p>
+<ol>
+ <li> Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer. </li>
+  <li> Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution. </li>
+  <li> All advertising materials mentioning features or use of this software 
+must display the following acknowledgement: This product includes software
+developed by Joseph Culberson at the University of Alberta. </li>
+  <li> Neither the name of the University nor the names of its contributors 
+may be used to endorse or promote products derived from this software without
+specific prior written permission. </li>
+</ol>
+  
+<p>  THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND ANY EXPRESS
+OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE. THIS SOFTWARE IS SUPPLIED WITHOUT ANY SUPPORT
+SERVICES.  </p>
+<p> This program was developed on SUN SPARC workstations running UNIX using
+the Gnu C compiler. It may or may not be portable to other systems.   </p>
+<p> Please send corrections, ideas for improvement, interesting results and
+random thoughts to <a href="mailto:joe@cs.ualberta.ca">joe@cs.ualberta.ca</a>
+.   </p>
+</body>
+</html>
