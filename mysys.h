@@ -71,7 +71,7 @@ extern int getpid();
 
 /*
 // #ifndef linux
-extern  void bzero(unsigned char *b, int length); 
+extern  void *memset(void *s, int c, size_t n);
 extern  void srandom(int seed); 
 extern  long random(); 
 extern void ungetc();

@@ -83,7 +83,7 @@ void read_graph_DIMACS_ascii(char *file)
 	char tmp[80];
         FILE *fp;
 
-	bzero(graph,GRAPHSIZE);
+	memset(graph,0,GRAPHSIZE);
 
         if ( (fp=fopen(file,"r"))==NULL )
           { printf("ERROR: Cannot open infile\n"); exit(10); }
@@ -274,7 +274,7 @@ void read_graph_DIMACS_bin( char *file)
 	  { printf("ERROR: Too int preamble.\n"); exit(10); }
          */
 
-	bzero(graph,GRAPHSIZE);
+	memset(graph,0,GRAPHSIZE);
         
 	for(oc = '\0' ;(c = fgetc(fp)) != EOF && 
 	     ((oc != '\0' && oc != '\n') || c != 'p')
