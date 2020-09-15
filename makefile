@@ -1,5 +1,5 @@
 
-LDLIBS = -lm 
+LDLIBS = -lm
 CC = gcc
 CFLAGS =  -O2  -Wall
 
@@ -8,7 +8,7 @@ default: doc
 BINPATH = ./bin
 
 
-GREEDY = gmain.o greedy.o graph.o colorrtns.o 
+GREEDY = gmain.o greedy.o graph.o colorrtns.o
 greedy: $(GREEDY) $(BINPATH)/greedy
 	
 $(BINPATH)/greedy: $(GREEDY)
@@ -68,10 +68,10 @@ $(TABU) : mysys.h itrgrdy.h greedy.h colorrtns.h graph.h tabu.h\
 ALLH = mysys.h greedy.h colorrtns.h graph.h dsatur.h maxis.h bktdsat.h\
 	maxclique.h tabu.h brute.h partition.h itrgrdy.h makefile
 
-all: $(ALLH) greedy dsatur maxis bktdsat itrgrdy tabu 
+all: $(ALLH) greedy dsatur maxis bktdsat itrgrdy tabu
 
 doc: README
 	less README
 
 clean:
-	\rm *.o 
+	\rm *.o

@@ -1,5 +1,5 @@
 /*
-	TABU COLORING OF A GRAPH
+        TABU COLORING OF A GRAPH
 */
 
 /*
@@ -10,38 +10,38 @@
                 http://web.cs.ualberta.ca/~joe/Coloring/index.html
         Author: Joseph Culberson
         email: joe@cs.ualberta.ca
-	Copyright (c) 1997 Joseph Culberson. All rights reserved.
+        Copyright (c) 1997 Joseph Culberson. All rights reserved.
 
-	Redistribution and use in source and binary forms, with or without
-	modification, are permitted provided that the following conditions
-	are met:
-	1. Redistributions of source code must retain the above copyright
-   	notice, this list of conditions and the following disclaimer.
-	2. Redistributions in binary form must reproduce the above copyright
-   	notice, this list of conditions and the following disclaimer in the
-   	documentation and/or other materials provided with the distribution.
-	3. All advertising materials mentioning features or use of this 
-	software must display the following acknowledgement:
-     	This product includes software developed by J. Culberson at the
-     	University of Alberta, Edmonton.
-	4. Neither the name of the University nor the names of its contributors
-   	may be used to endorse or promote products derived from this software
-   	without specific prior written permission.
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions
+        are met:
+        1. Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+        3. All advertising materials mentioning features or use of this
+        software must display the following acknowledgement:
+        This product includes software developed by J. Culberson at the
+        University of Alberta, Edmonton.
+        4. Neither the name of the University nor the names of its contributors
+        may be used to endorse or promote products derived from this software
+        without specific prior written permission.
 
-	THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND ANY
-	EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-	THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-	PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
-	CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-	SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-	HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-	CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-	EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        THIS SOFTWARE IS PROVIDED BY THE CONTRIBUTORS ``AS IS'' AND ANY
+        EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+        THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+        PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
+        CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+        SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+        NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+        HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+        CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+        OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+        EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-	THIS SOFTWARE IS SUPPLIED WITHOUT ANY SUPPORT SERVICES. 
+        THIS SOFTWARE IS SUPPLIED WITHOUT ANY SUPPORT SERVICES.
 
 */
 
@@ -62,11 +62,11 @@ void colorsearch(char *name)
 
 {
 
-	popmembertype m;
+        popmembertype m;
 
-	int tabunbr,tabuminnbr,tabusize;
+        int tabunbr,tabuminnbr,tabusize;
 
-	int maxiter, tabusteps;
+        int maxiter, tabusteps;
 
         char info[256];
         long lseconds, lmicrosecs;
@@ -77,70 +77,71 @@ void colorsearch(char *name)
         printf("Process pid = %d\n",pid);
 
 
-	printf("TABU CONTROL INFORMATION\n");
+        printf("TABU CONTROL INFORMATION\n");
 
-	printf("Maximum Iterations for tabu: ");
-	scanf("%d",&maxiter);
+        printf("Maximum Iterations for tabu: ");
+        scanf("%d",&maxiter);
 
-	printf("Enter number of neighbors ");
-	scanf("%d",&tabunbr);
-	printf("%d\n",tabunbr);
-	if (tabunbr > MAXTABULIST) {
-		printf("ERROR: Cannot exceed %d\n",MAXTABULIST);
-		exit(1);
-	}
+        printf("Enter number of neighbors ");
+        scanf("%d",&tabunbr);
+        printf("%d\n",tabunbr);
+        if (tabunbr > MAXTABULIST) {
+                printf("ERROR: Cannot exceed %d\n",MAXTABULIST);
+                exit(1);
+        }
 
-	printf("Enter minimum number of neighbors ");
-	scanf("%d",&tabuminnbr);
-	printf("%d\n",tabuminnbr);
+        printf("Enter minimum number of neighbors ");
+        scanf("%d",&tabuminnbr);
+        printf("%d\n",tabuminnbr);
 
-	printf("Enter tabu list size ");
-	scanf("%d",&tabusize);
-	printf("%d\n",tabusize);
-	if (tabusize > MAXTABU) {
-		printf("Tabu size must be no more than %d\n",MAXTABU);
-		exit(1);
-	}
-	if (tabusize < 1) {
-		printf("Tabu size must be > 0\n");
-		exit(1);
-	}
+        printf("Enter tabu list size ");
+        scanf("%d",&tabusize);
+        tabusize = 100;
+        printf("%d\n",tabusize);
+        if (tabusize > MAXTABU) {
+                printf("Tabu size must be no more than %d\n",MAXTABU);
+                exit(1);
+        }
+        if (tabusize < 1) {
+                printf("Tabu size must be > 0\n");
+                exit(1);
+        }
 
-	printf("Enter the target color you  want to try for: ");
-	scanf("%hu",&targetK);
-	printf("%hu\n",targetK);
+        printf("Enter the target color you  want to try for: ");
+        scanf("%hu",&targetK);
+        printf("%hu\n",targetK);
 
-	printf("If target not achieved, how many increases allowed: ");
-	scanf("%d",&tabusteps);
-	printf("%d\n",tabusteps);
-
-
-	/* compute degree sequences */
-	computedeg();
+        printf("If target not achieved, how many increases allowed: ");
+        scanf("%d",&tabusteps);
+        printf("%d\n",tabusteps);
 
 
-	getacoloring(&m, name, &j); /* open the color file for this graph
-			and get the desired coloring */
+        /* compute degree sequences */
+        computedeg();
 
-	verifycolor(&m);
 
-	/* NEEDED target color  as parameter; allow trivial start */
+        getacoloring(&m, name, &j); /* open the color file for this graph
+                        and get the desired coloring */
 
-	getcolorinfo(&m);
+        verifycolor(&m);
 
-	memtopart(&m);
+        /* NEEDED target color  as parameter; allow trivial start */
 
-	tabucol(maxiter, tabunbr, tabuminnbr, tabusize, tabusteps);
+        getcolorinfo(&m);
 
-	parttomem(&m);
+        memtopart(&m);
 
-	greedy(&m, 0, order, MAXVERTEX, SIMPLEG,1);
+        tabucol(maxiter, tabunbr, tabuminnbr, tabusize, tabusteps);
 
-	getcolorinfo(&m);
-	
-	printinfo(&m);
+        parttomem(&m);
 
-	verifycolor(&m);
+        greedy(&m, 0, order, MAXVERTEX, SIMPLEG,1);
+
+        getcolorinfo(&m);
+
+        printinfo(&m);
+
+        verifycolor(&m);
 
         i = getrusage(RUSAGE_SELF,&tmp);
         lseconds = tmp.ru_utime.tv_sec-seconds;
@@ -152,52 +153,52 @@ void colorsearch(char *name)
         fileres(name, &m,info);
 
 
-	/* printcoloring(&m); */
-	
+        /* printcoloring(&m); */
+
 
 }
 
 int main(int argc, char *argv[])
 {
-	int seed;
+        int seed;
 
-	if (argc!=2) {
-		printf("\tUsage: tabu file\n");
-		exit(1);
-	}
+        if (argc!=2) {
+                printf("\tUsage: tabu file\n");
+                exit(1);
+        }
 
-	about("TABU");
+        about("TABU");
 
 
-	/* Set up graph */
-	i = getrusage(RUSAGE_SELF,&tmp);
-	seconds = tmp.ru_utime.tv_sec;
-	microsecs = tmp.ru_utime.tv_usec;
-	getgraph(argv[1]);
-	i = getrusage(RUSAGE_SELF,&tmp);
-	seconds = tmp.ru_utime.tv_sec-seconds;
-	microsecs = tmp.ru_utime.tv_usec-microsecs;
-	printf("GRAPH SETUP cpu = %5.2f\n",
-		seconds+(microsecs/1000000.0));
+        /* Set up graph */
+        i = getrusage(RUSAGE_SELF,&tmp);
+        seconds = tmp.ru_utime.tv_sec;
+        microsecs = tmp.ru_utime.tv_usec;
+        getgraph(argv[1]);
+        i = getrusage(RUSAGE_SELF,&tmp);
+        seconds = tmp.ru_utime.tv_sec-seconds;
+        microsecs = tmp.ru_utime.tv_usec-microsecs;
+        printf("GRAPH SETUP cpu = %5.2f\n",
+                seconds+(microsecs/1000000.0));
 
-	/* perform color search */
+        /* perform color search */
 
-	/* Random initialization for search */
-	printf("Enter seed for search randomization: ");
-	scanf("%d",&seed);
-	printf(" %d\n",seed);
-	srandom(seed);
+        /* Random initialization for search */
+        printf("Enter seed for search randomization: ");
+        scanf("%d",&seed);
+        printf(" %d\n",seed);
+        srandom(seed);
 
-	i = getrusage(RUSAGE_SELF,&tmp);
-	seconds = tmp.ru_utime.tv_sec;
-	microsecs = tmp.ru_utime.tv_usec;
-	colorsearch(argv[1]);
-	i = getrusage(RUSAGE_SELF,&tmp);
-	seconds = tmp.ru_utime.tv_sec-seconds;
-	microsecs = tmp.ru_utime.tv_usec-microsecs;
-	printf("Coloring time cpu = %5.2f\n",
-		seconds+(microsecs/1000000.0));
+        i = getrusage(RUSAGE_SELF,&tmp);
+        seconds = tmp.ru_utime.tv_sec;
+        microsecs = tmp.ru_utime.tv_usec;
+        colorsearch(argv[1]);
+        i = getrusage(RUSAGE_SELF,&tmp);
+        seconds = tmp.ru_utime.tv_sec-seconds;
+        microsecs = tmp.ru_utime.tv_usec-microsecs;
+        printf("Coloring time cpu = %5.2f\n",
+                seconds+(microsecs/1000000.0));
 
-	return(0);
+        return(0);
 }
 
