@@ -12,6 +12,7 @@ GREEDY = gmain.o greedy.o graph.o colorrtns.o
 greedy: $(GREEDY) $(BINPATH)/greedy
 	
 $(BINPATH)/greedy: $(GREEDY)
+	@mkdir -p $(BINPATH)
 	$(CC) $(GREEDY) -o $(BINPATH)/greedy $(LDLIBS)
 
 $(GREEDY) : mysys.h greedy.h colorrtns.h graph.h makefile
@@ -20,6 +21,7 @@ DSATUR = dmain.o dsatur.o graph.o colorrtns.o
 dsatur: $(DSATUR) $(BINPATH)/dsatur
 	
 $(BINPATH)/dsatur: $(DSATUR)
+	@mkdir -p $(BINPATH)
 	$(CC) $(DSATUR) -o $(BINPATH)/dsatur $(LDLIBS)
 
 $(DSATUR) : mysys.h dsatur.h colorrtns.h graph.h makefile
@@ -28,6 +30,7 @@ MAXIS = mmain.o maxis.o graph.o colorrtns.o
 maxis: $(MAXIS) $(BINPATH)/maxis
 	
 $(BINPATH)/maxis: $(MAXIS)
+	@mkdir -p $(BINPATH)
 	$(CC) $(MAXIS) -o $(BINPATH)/maxis $(LDLIB)
 
 $(MAXIS) : mysys.h maxis.h colorrtns.h graph.h makefile
@@ -36,6 +39,7 @@ BKTDSAT = bkdmain.o bktdsat.o graph.o colorrtns.o maxclique.o
 bktdsat: $(BKTDSAT) $(BINPATH)/bktdsat
 	
 $(BINPATH)/bktdsat: $(BKTDSAT)
+	@mkdir -p $(BINPATH)
 	$(CC) $(BKTDSAT) -o $(BINPATH)/bktdsat $(LDLIBS)
 
 $(BKTDSAT) : mysys.h bktdsat.h colorrtns.h graph.h maxclique.h makefile
@@ -44,6 +48,7 @@ ITRGRDY = igmain.o greedy.o graph.o colorrtns.o itrgrdy.o
 itrgrdy: $(ITRGRDY) $(BINPATH)/itrgrdy
 	
 $(BINPATH)/itrgrdy: $(ITRGRDY)
+	@mkdir -p $(BINPATH)
 	$(CC) $(ITRGRDY) -o $(BINPATH)/itrgrdy $(LDLIBS)
 
 $(ITRGRDY) : mysys.h itrgrdy.h greedy.h colorrtns.h graph.h makefile
@@ -53,6 +58,7 @@ TABU = tbumain.o greedy.o graph.o colorrtns.o itrgrdy.o tabu.o partition.o brute
 tabu: $(TABU) $(BINPATH)/tabu
 	
 $(BINPATH)/tabu: $(TABU)
+	@mkdir -p $(BINPATH)
 	$(CC) $(TABU) -o $(BINPATH)/tabu $(LDLIBS)
 
 $(TABU) : mysys.h itrgrdy.h greedy.h colorrtns.h graph.h tabu.h\
