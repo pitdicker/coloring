@@ -49,6 +49,7 @@
 #include "colorrtns.h"
 #include "graph.h"
 #include "itrgrdy.h"
+#include "rng.h"
 
 
 /*
@@ -165,7 +166,7 @@ void shufflevec( int start,int num, int permvec[])
 {
         int i,j,k;
         for(i=start;i<num;i++) {
-                j = i + (random() % (1+num-i));
+                j = i + (pcg32_random() % (1+num-i));
                 k = permvec[i];
                 permvec[i] = permvec[j];
                 permvec[j] = k;
@@ -229,7 +230,7 @@ int kempe_freq)
         while (((nbiter - bestiter) < maxiter) && (minclr > targetclr)
                         && (!stopflag) ) {
                 nbiter++;
-                cntrlidx = random() % controltot;
+                cntrlidx = pcg32_random() % controltot;
                 i = 0;
                 while (controlselect[i] < cntrlidx) i++;
                 control = controlset[i];
@@ -258,7 +259,7 @@ int kempe_freq)
                 }
 #endif
                 /* select a greedy type by proportional selection */
-                findWt = random() % totalgreedywt;
+                findWt = pcg32_random() % totalgreedywt;
                 greedyindex =SIMPLEG;
                 while (0 <= (findWt -= greedyWt[greedyindex])) greedyindex++;
 

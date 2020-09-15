@@ -52,6 +52,7 @@
 #include "graph.h"
 #include "colorrtns.h"
 #include "partition.h"
+#include "rng.h"
 
 /* Global Time info */
 long seconds,microsecs,i;
@@ -187,7 +188,7 @@ int main(int argc, char *argv[])
         printf("Enter seed for search randomization: ");
         scanf("%d",&seed);
         printf(" %d\n",seed);
-        srandom(seed);
+        pcg32_srandom(seed);
 
         i = getrusage(RUSAGE_SELF,&tmp);
         seconds = tmp.ru_utime.tv_sec;

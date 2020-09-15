@@ -50,6 +50,7 @@
 #include "mysys.h"
 #include "graph.h"
 #include "colorrtns.h"
+#include "rng.h"
 
 /*
         A Collection of routines for manipulating vectors
@@ -152,7 +153,7 @@ vertextype first, vertextype last)
         struct vrtxandclr k;
 
         for(i=first; i<last-1; i++) {
-                j = i + ((vertextype) random() % (last - i));
+                j = i + ((vertextype) pcg32_random() % (last - i));
                 k = member->vc[i];
                 member->vc[i] = member->vc[j];
                 member->vc[j] = k;

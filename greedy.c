@@ -46,6 +46,7 @@
 #include "greedy.h"
 #include "graph.h"
 #include "colorrtns.h"
+#include "rng.h"
 
 /*
         GREEDY ALGORITHM
@@ -268,7 +269,7 @@ greedytype which)
                                    permutation is the same for the next vertex
                                    colored, otherwise it has a minor change */
                                         maxindex++;
-                                        i = (random() % maxindex)+1;
+                                        i = (pcg32_random() % maxindex)+1;
                                         temp = clrorder[i];
                                         clrorder[i] = clrorder[maxindex];
                                         clrorder[maxindex] = temp;

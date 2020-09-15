@@ -54,6 +54,7 @@
 #include "tabu.h"
 #include "partition.h"
 #include "brute.h"
+#include "rng.h"
 
 /* the hash table size  must be power of two */
 #define MAXHASH 131072
@@ -81,8 +82,8 @@ void selectrand( tabuinfotype *info)
 
         flag = 1;
         while (flag) {
-                v = conflictList[ random() % numInConflict];
-                p = (colortype) (random() % targetK);
+                v = conflictList[ pcg32_random() % numInConflict];
+                p = (colortype) (pcg32_random() % targetK);
                 if (vertexlist[v].part != p) {
                         flag =  hash[HASH(v,p)];
                 }
